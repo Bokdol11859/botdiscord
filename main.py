@@ -2,7 +2,7 @@ import discord, asyncio, os
 from discord.ext import commands
 import json
 
-with open('../DiscordBotTest/config.json') as f:
+with open('config.json') as f:
     key = json.load(f)
 
 game = discord.Game("Currently Testing")
