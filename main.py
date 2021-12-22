@@ -13,9 +13,3 @@ async def hello(ctx):
     await ctx.send('{}님 안녕하세요!'.format(ctx.author.name))
 
 bot.run(key['token'])
-
-#test1fdsa
-#hello
-#hello
-#test1
-#upstream
