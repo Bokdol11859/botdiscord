@@ -32,6 +32,16 @@ async def dice(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
+async def serverInfo(ctx):
+    members = [member.name for member in ctx.guild.members]
+    await ctx.send(
+        "{} 서버의 인원은 총 {} 명입니다.".format(
+            ctx.guild.name,
+            ctx.guild.member_count
+        )
+    )
+
+@bot.command()
 async def copy(ctx,*,text):
     await ctx.send(text)
 
