@@ -15,3 +15,5 @@ async def hello(ctx):
 bot.run(key['token'])
 
 #test1fdsa
+#hello
+#hello
