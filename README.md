@@ -1,4 +1,5 @@
 # botdiscord
 
-git fetch upstream
-git merge upstream/master
+How to Start:
+1. git fetch upstream
+2. git merge upstream/master
