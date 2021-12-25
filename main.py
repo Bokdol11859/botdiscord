@@ -41,6 +41,16 @@ async def serverInfo(ctx):
         )
     )
 
+#embed 기능 테스트 추가
+@bot.command()
+async def github(ctx,text):
+    embed=discord.Embed(title=text,
+                        url="https://github.com/{}".format(text),
+                        description="{}'s github".format(text),
+                        color=0xFF5733)
+    await ctx.send(embed=embed)
+
+
 @bot.command()
 async def copy(ctx,*,text):
     await ctx.send(text)
