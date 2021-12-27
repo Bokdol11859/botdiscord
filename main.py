@@ -63,21 +63,22 @@ async def copy(ctx,*,text):
 
 @bot.command()
 async def play(ctx, url):
-    channel = ctx.author.voice.channel
     global song_list
-    if not bot.voice_clients:
-        await channel.connect()
-        await ctx.send(str(bot.voice_clients[0].channel)+"채널에 연결 되었습니다.")
-    if bot.voice_clients[0].is_playing():
-        song_list.append(url)
-    ydl_opts = {'format': 'bestaudio'}
-    FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-        URL = info['formats'][0]['url']
-    voice = bot.voice_clients[0]
-    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+    try:
+        channel = ctx.author.voice.channel
+        if not bot.voice_clients:
+            await channel.connect()
+            await ctx.send(str(bot.voice_clients[0].channel)+"채널에 연결 되었습니다.")
 
+        ydl_opts = {'format': 'bestaudio'}
+        FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            URL = info['formats'][0]['url']
+        voice = bot.voice_clients[0]
+        voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+    except:
+        song_list.append(url)
 @bot.command()
 async def leave(ctx):
     await bot.voice_clients[0].disconnect()
@@ -120,6 +121,11 @@ async def skip(ctx):
             URL = info['formats'][0]['url']
         voice = bot.voice_clients[0]
         voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+
+        await ctx.send("다음 노래를 재생합니다.")
     else:
         await ctx.send("뒤에 재생 할 음악이 존재하지 않습니다.")
+
+#노래 끝나면 넘어가는 기능 추가하기
+
 bot.run(key['token'])
