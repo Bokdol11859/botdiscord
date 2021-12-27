@@ -104,4 +104,11 @@ async def stop(ctx):
     else:
         await ctx.send("이미 재생을 멈춘 상태입니다")
 
+@bot.command()
+async def skip(ctx):
+    if bot.voice_clients[0].is_playing():
+        bot.voice_clients[0].stop()
+        bot.voice_clients[0].play()
+    else:
+        await ctx.send("뒤에 재생 할 음악이 존재하지 않습니다.")
 bot.run(key['token'])
