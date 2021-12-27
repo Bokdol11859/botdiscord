@@ -1,8 +1,11 @@
 import discord, asyncio, os
+import youtube_dl
 from discord.ext import commands
 import json
 import random
 
+#
+import discord
 with open('config.json') as f:
     key = json.load(f)
 
@@ -15,7 +18,7 @@ async def on_ready():
     print('연결이 완료되었습니다.')
     await bot.change_presence(status=discord.Status.online, activity=None)
 
-@bot.command(aliases = ['hi', '안녕', 'ㅎㅇ'])
+@bot.command(aliases = ['hi', 'ㅎㅇ'])
 async def hello(ctx):
     await ctx.send('{}님 안녕하세요!'.format(ctx.author.name))
 
@@ -54,5 +57,51 @@ async def github(ctx,text):
 @bot.command()
 async def copy(ctx,*,text):
     await ctx.send(text)
+
+#유튜브 기능 test----------------------------------------------------------
+
+@bot.command()
+async def play(ctx, url):
+    channel = ctx.author.voice.channel
+    if bot.voice_clients == []:
+        await channel.connect()
+        await ctx.send(str(bot.voice_clients[0].channel)+"채널에 연결 되었습니다.")
+
+    ydl_opts = {'format': 'bestaudio'}
+    FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        URL = info['formats'][0]['url']
+    voice = bot.voice_clients[0]
+    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+
+@bot.command()
+async def leave(ctx):
+    await bot.voice_clients[0].disconnect()
+
+
+@bot.command()
+async def pause(ctx):
+    if not bot.voice_clients[0].is_paused():
+        bot.voice_clients[0].pause()
+    else:
+        await ctx.send("이미 정지 된 상태입니다.")
+
+
+@bot.command()
+async def resume(ctx):
+    if bot.voice_clients[0].is_paused():
+        bot.voice_clients[0].resume()
+    else:
+        await ctx.send("이미 실행중입니다.")
+
+
+@bot.command()
+async def stop(ctx):
+    if bot.voice_clients[0].is_playing():
+        bot.voice_clients[0].stop()
+
+    else:
+        await ctx.send("이미 재생을 멈춘 상태입니다")
 
 bot.run(key['token'])
