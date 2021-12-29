@@ -78,7 +78,7 @@ async def play(ctx, url):
             info = ydl.extract_info(url, download=False)
             URL = info['formats'][0]['url']
         voice = bot.voice_clients[0]
-        voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+        voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=await autoNext(ctx))
     except:
         song_list.append(url)
         await ctx.send("플레이리스트에 추가 되었습니다.")
@@ -125,7 +125,7 @@ async def next(ctx):
                 info = ydl.extract_info(url, download=False)
                 URL = info['formats'][0]['url']
             voice = bot.voice_clients[0]
-            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=await autoNext(ctx))
 
             await ctx.send("다음 노래를 재생합니다.")
         else:
@@ -137,7 +137,7 @@ async def next(ctx):
                 info = ydl.extract_info(url, download=False)
                 URL = info['formats'][0]['url']
             voice = bot.voice_clients[0]
-            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=await autoNext(ctx))
 
             await ctx.send("다음 노래를 재생합니다.")
     except:
@@ -145,8 +145,9 @@ async def next(ctx):
 
 #노래 끝나면 넘어가는 기능 추가하기
 async def autoNext(ctx):
-    if not bot.voice_clients.is_playing():
-        await ctx.next()
+    print("hello world")
+    if song_list:
+        await next()
 
 
 bot.run(key['token'])
