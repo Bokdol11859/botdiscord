@@ -79,6 +79,7 @@ async def play(ctx, url):
         voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
     except:
         song_list.append(url)
+        await ctx.send("플레이리스트에 추가 되었습니다.")
 @bot.command()
 async def leave(ctx):
     await bot.voice_clients[0].disconnect()
@@ -109,7 +110,7 @@ async def stop(ctx):
         await ctx.send("이미 재생을 멈춘 상태입니다")
 
 @bot.command()
-async def skip(ctx):
+async def next(ctx):
     if bot.voice_clients[0].is_playing():
         bot.voice_clients[0].stop()
         url = song_list.popleft()
