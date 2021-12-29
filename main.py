@@ -82,13 +82,7 @@ async def play(ctx, url):
     except:
         song_list.append(url)
         await ctx.send("플레이리스트에 추가 되었습니다.")
-    while(1):
-        if not bot.voice_clients[0].is_playing():
-            try:
-                await next()
-            except:
-                await ctx.send("뒤에 재생 할 음악이 존재하지 않습니다.")
-                break
+
 @bot.command()
 async def leave(ctx):
     await bot.voice_clients[0].disconnect()
