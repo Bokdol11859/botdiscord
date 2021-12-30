@@ -1,8 +1,4 @@
 import discord, asyncio, os
-import requests
-import requests
-from bs4 import BeautifulSoup
-import time
 import youtube_dl
 from discord.ext import commands
 import json
@@ -16,7 +12,6 @@ with open('config.json') as f:
 
 bot = commands.Bot(command_prefix='!')
 song_list = deque()
-me = {'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5'}
 @bot.event
 async def on_ready():
     print('로그인중입니다. ')
@@ -28,13 +23,6 @@ async def on_ready():
 async def hello(ctx):
     await ctx.send('{}님 안녕하세요!'.format(ctx.author.name))
 
-@bot.command()
-async def search(ctx):
-    url = requests.get('https://www.google.co.kr/search?q={}&hl=en&sxsrf=AOaemvIDe4sI2b6jOhqCzT68a5JQhMJJpw:1640799190971&source=lnms&tbm=vid&sa=X&ved=2ahUKEwiVprOnxYn1AhXQAN4KHXONCQ8Q_AUoA3oECAIQBQ&biw=1920&bih=937&dpr=1'.format(ctx), headers=me)
-    html = BeautifulSoup(url.text, features="html.parser")
-    print(html)
-    # list = html.find('div', class_ = 'style-scope')
-    # await ctx.send(list[:3])
 @bot.command(aliases=['주사위'])
 async def dice(ctx):
     dice0={1:'⚀=1',2:'⚁=2',3:'⚂=3',4:'⚃=4',5:'⚄=5',6:'⚅=6'}#딕셔너리
@@ -161,5 +149,11 @@ def autoNext():
     if song_list:
         next()
 
-
+@bot.command()
+async def playlist(ctx):
+    embed = discord.Embed(title=("현재 ["+str(len(song_list))+"]개의 곡이 플레이리스트에 담겨 있습니다.")
+                          , color=0xff69b4)
+    await ctx.send(embed=embed)
+    for i in song_list:
+        await ctx.send(i)
 bot.run(key['token'])
