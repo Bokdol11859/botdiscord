@@ -226,4 +226,7 @@ async def playlist(ctx):
     await ctx.send(embed=embed)
     for i in song_list:
         await ctx.send(i)
-bot.run(key['token'])
+
+        
+access_token = os.environ["token"]
+bot.run(access_token)
