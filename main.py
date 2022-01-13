@@ -1,3 +1,4 @@
+import bs4
 import discord, asyncio, os
 import youtube_dl
 from discord.ext import commands
@@ -7,6 +8,8 @@ from collections import deque
 
 #
 import discord
+from selenium import webdriver
+
 with open('config.json') as f:
     key = json.load(f)
 
@@ -62,7 +65,7 @@ async def copy(ctx,*,text):
 #유튜브 기능 test----------------------------------------------------------
 
 @bot.command()
-async def play(ctx, url):
+async def play(ctx, msg):
     global song_list
     try:
         channel = ctx.author.voice.channel
@@ -74,13 +77,37 @@ async def play(ctx, url):
         ydl_opts = {'format': 'bestaudio'}
         FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                           'options': '-vn'}
+
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        options.add_argument('window-size=1920x1080')
+        options.add_argument("disable-gpu")
+        options.add_argument(
+            "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
+        options.add_argument("lang=ko_KR")  # 한국어!
+
+        chromedriver_dir = r"C:\Users\User\Desktop\강명묵\etc\discordFile\chromedriver.exe"
+        driver = webdriver.Chrome(chromedriver_dir, chrome_options=options) #변경
+        driver.get("https://www.youtube.com/results?search_query=" + msg)
+        source = driver.page_source
+        bs = bs4.BeautifulSoup(source, 'lxml')
+        entire = bs.find_all('a', {'id': 'video-title'})
+        entireNum = entire[0]
+        entireText = entireNum.text.strip()
+        musicurl = entireNum.get('href')
+        url = 'https://www.youtube.com'+musicurl
+
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             URL = info['formats'][0]['url']
         voice = bot.voice_clients[0]
-        voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: asyncio.run_coroutine_threadsafe(autoNext, bot.loop))
+        voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+        embed=discord.Embed(title=entireText+"를 재생합니다.", #변경
+                            color=0xFF0000) #변경
+        await ctx.send(embed=embed) #변경
+        await ctx.send(url) #변경
     except:
-        song_list.append(url)
+        song_list.append(msg)
         await ctx.send("플레이리스트에 추가 되었습니다.")
 
 @bot.command()
@@ -117,37 +144,79 @@ async def next(ctx):
     try:
         if bot.voice_clients[0].is_playing():
             bot.voice_clients[0].stop()
-            url = song_list.popleft()
+            msg = song_list.popleft()
             ydl_opts = {'format': 'bestaudio'}
             FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                               'options': '-vn'}
+
+            options = webdriver.ChromeOptions()
+            options.add_argument('headless')
+            options.add_argument('window-size=1920x1080')
+            options.add_argument("disable-gpu")
+            options.add_argument(
+                "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
+            options.add_argument("lang=ko_KR")  # 한국어!
+
+            chromedriver_dir = r"C:\Users\User\Desktop\강명묵\etc\discordFile\chromedriver.exe"
+            driver = webdriver.Chrome(chromedriver_dir, chrome_options=options)  # 변경
+            driver.get("https://www.youtube.com/results?search_query=" + msg)
+            source = driver.page_source
+            bs = bs4.BeautifulSoup(source, 'lxml')
+            entire = bs.find_all('a', {'id': 'video-title'})
+            entireNum = entire[0]
+            entireText = entireNum.text.strip()
+            musicurl = entireNum.get('href')
+            url = 'https://www.youtube.com' + musicurl
+
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 URL = info['formats'][0]['url']
             voice = bot.voice_clients[0]
-            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: asyncio.run_coroutine_threadsafe(autoNext, bot.loop))
-
+            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
             await ctx.send("다음 노래를 재생합니다.")
+            embed = discord.Embed(title=entireText + "를 재생합니다.",  # 변경
+                                  color=0xFF0000)  # 변경
+            await ctx.send(embed=embed)  # 변경
+            await ctx.send(url)  # 변경
         else:
-            url = song_list.popleft()
+            msg = song_list.popleft()
             ydl_opts = {'format': 'bestaudio'}
             FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                               'options': '-vn'}
+
+            options = webdriver.ChromeOptions()
+            options.add_argument('headless')
+            options.add_argument('window-size=1920x1080')
+            options.add_argument("disable-gpu")
+            options.add_argument(
+                "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
+            options.add_argument("lang=ko_KR")  # 한국어!
+
+            chromedriver_dir = r"C:\Users\User\Desktop\강명묵\etc\discordFile\chromedriver.exe"
+            driver = webdriver.Chrome(chromedriver_dir, chrome_options=options)  # 변경
+            driver.get("https://www.youtube.com/results?search_query=" + msg)
+            source = driver.page_source
+            bs = bs4.BeautifulSoup(source, 'lxml')
+            entire = bs.find_all('a', {'id': 'video-title'})
+            entireNum = entire[0]
+            entireText = entireNum.text.strip()
+            musicurl = entireNum.get('href')
+            url = 'https://www.youtube.com' + musicurl
+
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 URL = info['formats'][0]['url']
             voice = bot.voice_clients[0]
-            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: asyncio.run_coroutine_threadsafe(autoNext, bot.loop))
+            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+            #,after=lambda e: asyncio.run_coroutine_threadsafe(autoNext, bot.loop)
 
             await ctx.send("다음 노래를 재생합니다.")
+            embed = discord.Embed(title=entireText + "를 재생합니다.",  # 변경
+                                  color=0xFF0000)  # 변경
+            await ctx.send(embed=embed)  # 변경
     except:
         await ctx.send("뒤에 재생 할 음악이 존재하지 않습니다.")
 
-#노래 끝나면 넘어가는 기능 추가하기
-def autoNext():
-    print("hello world")
-    if song_list:
-        next()
 
 @bot.command()
 async def playlist(ctx):
