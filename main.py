@@ -228,5 +228,5 @@ async def playlist(ctx):
         await ctx.send(i)
 
         
-access_token = os.environ["token"]
+access_token = os.environ['token']
 bot.run(access_token)
