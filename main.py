@@ -82,12 +82,13 @@ async def play(ctx, msg):
         options.add_argument('headless')
         options.add_argument('window-size=1920x1080')
         options.add_argument("disable-gpu")
+        options.add_argument("--no-sandbox")
         options.add_argument(
             "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
         options.add_argument("lang=ko_KR")  # 한국어!
 
-        chromedriver_dir = r"C:\Users\User\Desktop\강명묵\etc\discordFile\chromedriver.exe"
-        driver = webdriver.Chrome(chromedriver_dir, chrome_options=options) #변경
+        options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+        driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=options) #변경
         driver.get("https://www.youtube.com/results?search_query=" + msg)
         source = driver.page_source
         bs = bs4.BeautifulSoup(source, 'lxml')
@@ -157,8 +158,8 @@ async def next(ctx):
                 "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
             options.add_argument("lang=ko_KR")  # 한국어!
 
-            chromedriver_dir = r"C:\Users\User\Desktop\강명묵\etc\discordFile\chromedriver.exe"
-            driver = webdriver.Chrome(chromedriver_dir, chrome_options=options)  # 변경
+            options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+            driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=options) #변경
             driver.get("https://www.youtube.com/results?search_query=" + msg)
             source = driver.page_source
             bs = bs4.BeautifulSoup(source, 'lxml')
@@ -192,8 +193,8 @@ async def next(ctx):
                 "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
             options.add_argument("lang=ko_KR")  # 한국어!
 
-            chromedriver_dir = r"C:\Users\User\Desktop\강명묵\etc\discordFile\chromedriver.exe"
-            driver = webdriver.Chrome(chromedriver_dir, chrome_options=options)  # 변경
+            options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+            driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=options) #변경
             driver.get("https://www.youtube.com/results?search_query=" + msg)
             source = driver.page_source
             bs = bs4.BeautifulSoup(source, 'lxml')
