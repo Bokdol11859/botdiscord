@@ -10,9 +10,6 @@ from collections import deque
 import discord
 from selenium import webdriver
 
-with open('config.json') as f:
-    key = json.load(f)
-
 bot = commands.Bot(command_prefix='!')
 song_list = deque()
 @bot.event
