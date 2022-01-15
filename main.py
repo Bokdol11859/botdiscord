@@ -136,6 +136,7 @@ async def stop(ctx):
 
 @bot.command()
 async def clear(ctx):
+    global song_list
     if song_list:
         song_list = deque()
         await ctx.send('플레이리스트 삭제 완료')
