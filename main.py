@@ -85,7 +85,7 @@ async def play(ctx, msg):
         options.add_argument("lang=ko_KR")  # 한국어!
 
         options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-        driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=options) #변경
+        driver = webdriver.Chrome(service=os.environ.get("CHROMEDRIVER_PATH"), options=options) #변경
         driver.get("https://www.youtube.com/results?search_query=" + msg)
         source = driver.page_source
         bs = bs4.BeautifulSoup(source, 'lxml')
@@ -94,7 +94,7 @@ async def play(ctx, msg):
         entireText = entireNum.text.strip()
         musicurl = entireNum.get('href')
         url = 'https://www.youtube.com'+musicurl
-
+        print('노래 다운 완료')
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             URL = info['formats'][0]['url']
@@ -102,6 +102,7 @@ async def play(ctx, msg):
         voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
         embed=discord.Embed(title=entireText+"를 재생합니다.", #변경
                             color=0xFF0000) #변경
+        print('재생 완료')
         await ctx.send(embed=embed) #변경
         await ctx.send(url) #변경
     except:
@@ -156,7 +157,7 @@ async def next(ctx):
             options.add_argument("lang=ko_KR")  # 한국어!
 
             options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-            driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=options) #변경
+            driver = webdriver.Chrome(service=os.environ.get("CHROMEDRIVER_PATH"), options=options) #변경
             driver.get("https://www.youtube.com/results?search_query=" + msg)
             source = driver.page_source
             bs = bs4.BeautifulSoup(source, 'lxml')
@@ -191,7 +192,7 @@ async def next(ctx):
             options.add_argument("lang=ko_KR")  # 한국어!
 
             options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-            driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=options) #변경
+            driver = webdriver.Chrome(service=os.environ.get("CHROMEDRIVER_PATH"), options=options) #변경
             driver.get("https://www.youtube.com/results?search_query=" + msg)
             source = driver.page_source
             bs = bs4.BeautifulSoup(source, 'lxml')
