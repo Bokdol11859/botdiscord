@@ -69,12 +69,12 @@ async def play(ctx, msg):
         if not bot.voice_clients:
             await channel.connect()
             await ctx.send(str(bot.voice_clients[0].channel) + "채널에 연결 되었습니다.")
-
+        print('접속 완료')
         # if bot.voice_clients[0].is_stoped() and not song_list.empty():
         ydl_opts = {'format': 'bestaudio'}
         FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                           'options': '-vn'}
-
+        print('ffmpeg')
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
         options.add_argument('window-size=1920x1080')
@@ -83,11 +83,12 @@ async def play(ctx, msg):
         options.add_argument(
             "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
         options.add_argument("lang=ko_KR")  # 한국어!
-
+        print('selenium')
         options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
         driver = webdriver.Chrome(service=os.environ.get("CHROMEDRIVER_PATH"), options=options) #변경
         driver.get("https://www.youtube.com/results?search_query=" + msg)
         source = driver.page_source
+        print('beautifulsoup')
         bs = bs4.BeautifulSoup(source, 'lxml')
         entire = bs.find_all('a', {'id': 'video-title'})
         entireNum = entire[0]
