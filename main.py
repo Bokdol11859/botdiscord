@@ -70,12 +70,10 @@ async def play(ctx, msg):
         if not bot.voice_clients:
             await channel.connect()
             await ctx.send(str(bot.voice_clients[0].channel) + "채널에 연결 되었습니다.")
-        print('접속 완료')
         # if bot.voice_clients[0].is_stoped() and not song_list.empty():
         ydl_opts = {'format': 'bestaudio'}
         FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                           'options': '-vn'}
-        print('ffmpeg')
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
         options.add_argument('window-size=1920x1080')
@@ -84,22 +82,16 @@ async def play(ctx, msg):
         options.add_argument(
             "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
         options.add_argument("lang=ko_KR")  # 한국어!
-        print('selenium')
         options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-        print('chrome_bin')
         driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
-        print('chromedriver')
         driver.get("https://www.youtube.com/results?search_query=" + msg)
-        print('get')
         source = driver.page_source
-        print('beautifulsoup')
         bs = bs4.BeautifulSoup(source, 'lxml')
         entire = bs.find_all('a', {'id': 'video-title'})
         entireNum = entire[0]
         entireText = entireNum.text.strip()
         musicurl = entireNum.get('href')
         url = 'https://www.youtube.com'+musicurl
-        print('노래 다운 완료')
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             URL = info['formats'][0]['url']
@@ -107,7 +99,6 @@ async def play(ctx, msg):
         voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
         embed=discord.Embed(title=entireText+"를 재생합니다.", #변경
                             color=0xFF0000) #변경
-        print('재생 완료')
         await ctx.send(embed=embed) #변경
         await ctx.send(url) #변경
     except:
@@ -144,6 +135,14 @@ async def stop(ctx):
         await ctx.send("이미 재생을 멈춘 상태입니다")
 
 @bot.command()
+async def clear(ctx):
+    if song_list:
+        song_list = deque()
+        await ctx.send('플레이리스트 삭제 완료')
+    else:
+        await ctx.send('삭제할 플레이리스트가 없습니다')
+        
+@bot.command()
 async def next(ctx):
     try:
         if bot.voice_clients[0].is_playing():
@@ -162,7 +161,7 @@ async def next(ctx):
             options.add_argument("lang=ko_KR")  # 한국어!
 
             options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-            driver = webdriver.Chrome(service=os.environ.get("CHROMEDRIVER_PATH"), options=options) #변경
+            driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
             driver.get("https://www.youtube.com/results?search_query=" + msg)
             source = driver.page_source
             bs = bs4.BeautifulSoup(source, 'lxml')
@@ -197,7 +196,7 @@ async def next(ctx):
             options.add_argument("lang=ko_KR")  # 한국어!
 
             options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-            driver = webdriver.Chrome(service=os.environ.get("CHROMEDRIVER_PATH"), options=options) #변경
+            driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
             driver.get("https://www.youtube.com/results?search_query=" + msg)
             source = driver.page_source
             bs = bs4.BeautifulSoup(source, 'lxml')
