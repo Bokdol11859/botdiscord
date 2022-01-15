@@ -85,8 +85,11 @@ async def play(ctx, msg):
         options.add_argument("lang=ko_KR")  # 한국어!
         print('selenium')
         options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+        print('chrome_bin')
         driver = webdriver.Chrome(service=os.environ.get("CHROMEDRIVER_PATH"), options=options) #변경
+        print('chromedriver')
         driver.get("https://www.youtube.com/results?search_query=" + msg)
+        print('get')
         source = driver.page_source
         print('beautifulsoup')
         bs = bs4.BeautifulSoup(source, 'lxml')
