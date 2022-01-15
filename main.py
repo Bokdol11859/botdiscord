@@ -9,6 +9,7 @@ from collections import deque
 #
 import discord
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 
 bot = commands.Bot(command_prefix='!')
 song_list = deque()
@@ -86,7 +87,7 @@ async def play(ctx, msg):
         print('selenium')
         options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
         print('chrome_bin')
-        driver = webdriver.Chrome(service=Service(executable_path=os.environ.get("CHROMEDRIVER_PATH")), options=options) #변경
+        driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
         print('chromedriver')
         driver.get("https://www.youtube.com/results?search_query=" + msg)
         print('get')
