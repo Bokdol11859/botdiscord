@@ -13,7 +13,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 bot = commands.Bot(command_prefix='!')
 song_list = deque()
-song_list_url = deque()
 @bot.event
 async def on_ready():
     print('로그인중입니다. ')
@@ -170,7 +169,7 @@ async def next(ctx):
         if bot.voice_clients[0].is_playing():
             bot.voice_clients[0].stop()
             msg = song_list.popleft()
-            if msg[:4] == "https":
+            if msg[:5] == "https":
                 ydl_opts = {'format': 'bestaudio'}
                 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                                   'options': '-vn'}
@@ -218,7 +217,7 @@ async def next(ctx):
                 await ctx.send(url)  # 변경
         else:
             msg = song_list.popleft()
-            if msg[:4] == "https":
+            if msg[:5] == "https":
                 ydl_opts = {'format': 'bestaudio'}
                 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                                   'options': '-vn'}
