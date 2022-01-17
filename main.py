@@ -66,6 +66,7 @@ async def copy(ctx,*,text):
 @bot.command()
 async def play(ctx, msg):
     global song_list
+    print(msg[:4])
     if msg[:4]=="https":
         try:
             channel = ctx.author.voice.channel
