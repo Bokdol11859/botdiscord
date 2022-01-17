@@ -63,7 +63,7 @@ async def copy(ctx,*,text):
 #유튜브 기능 test----------------------------------------------------------
 
 @bot.command()
-async def play(ctx, msg):
+async def play(ctx, *, msg):
     global song_list
     print(msg)
     if msg[:2]=="ht":
