@@ -13,6 +13,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 bot = commands.Bot(command_prefix='!')
 song_list = deque()
+song_list_url = deque()
 @bot.event
 async def on_ready():
     print('로그인중입니다. ')
@@ -65,45 +66,64 @@ async def copy(ctx,*,text):
 @bot.command()
 async def play(ctx, msg):
     global song_list
-    try:
-        channel = ctx.author.voice.channel
-        if not bot.voice_clients:
-            await channel.connect()
-            await ctx.send(str(bot.voice_clients[0].channel) + "채널에 연결 되었습니다.")
-        # if bot.voice_clients[0].is_stoped() and not song_list.empty():
-        ydl_opts = {'format': 'bestaudio'}
-        FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                          'options': '-vn'}
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument('window-size=1920x1080')
-        options.add_argument("disable-gpu")
-        options.add_argument("--no-sandbox")
-        options.add_argument(
-            "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
-        options.add_argument("lang=ko_KR")  # 한국어!
-        options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-        driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
-        driver.get("https://www.youtube.com/results?search_query=" + msg)
-        source = driver.page_source
-        bs = bs4.BeautifulSoup(source, 'lxml')
-        entire = bs.find_all('a', {'id': 'video-title'})
-        entireNum = entire[0]
-        entireText = entireNum.text.strip()
-        musicurl = entireNum.get('href')
-        url = 'https://www.youtube.com'+musicurl
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            URL = info['formats'][0]['url']
-        voice = bot.voice_clients[0]
-        voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-        embed=discord.Embed(title=entireText+"를 재생합니다.", #변경
-                            color=0xFF0000) #변경
-        await ctx.send(embed=embed) #변경
-        await ctx.send(url) #변경
-    except:
-        song_list.append(msg)
-        await ctx.send("플레이리스트에 추가 되었습니다.")
+    if msg[:4]=="https":
+        try:
+            channel = ctx.author.voice.channel
+            if not bot.voice_clients:
+                await channel.connect()
+                await ctx.send(str(bot.voice_clients[0].channel) + "채널에 연결 되었습니다.")
+
+            ydl_opts = {'format': 'bestaudio'}
+            FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                              'options': '-vn'}
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(msg, download=False)
+                URL = info['formats'][0]['url']
+            voice = bot.voice_clients[0]
+            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+        except:
+            song_list.append(msg)
+            await ctx.send("플레이리스트에 추가 되었습니다.")
+    else:
+        try:
+            channel = ctx.author.voice.channel
+            if not bot.voice_clients:
+                await channel.connect()
+                await ctx.send(str(bot.voice_clients[0].channel) + "채널에 연결 되었습니다.")
+            # if bot.voice_clients[0].is_stoped() and not song_list.empty():
+            ydl_opts = {'format': 'bestaudio'}
+            FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                              'options': '-vn'}
+            options = webdriver.ChromeOptions()
+            options.add_argument('headless')
+            options.add_argument('window-size=1920x1080')
+            options.add_argument("disable-gpu")
+            options.add_argument("--no-sandbox")
+            options.add_argument(
+                "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
+            options.add_argument("lang=ko_KR")  # 한국어!
+            options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+            driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
+            driver.get("https://www.youtube.com/results?search_query=" + msg)
+            source = driver.page_source
+            bs = bs4.BeautifulSoup(source, 'lxml')
+            entire = bs.find_all('a', {'id': 'video-title'})
+            entireNum = entire[0]
+            entireText = entireNum.text.strip()
+            musicurl = entireNum.get('href')
+            url = 'https://www.youtube.com'+musicurl
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                URL = info['formats'][0]['url']
+            voice = bot.voice_clients[0]
+            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+            embed=discord.Embed(title=entireText+"를 재생합니다.", #변경
+                                color=0xFF0000) #변경
+            await ctx.send(embed=embed) #변경
+            await ctx.send(url) #변경
+        except:
+            song_list.append(msg)
+            await ctx.send("플레이리스트에 추가 되었습니다.")
 
 @bot.command()
 async def leave(ctx):
@@ -142,82 +162,108 @@ async def clear(ctx):
         await ctx.send('플레이리스트 삭제 완료')
     else:
         await ctx.send('삭제할 플레이리스트가 없습니다')
-        
+
 @bot.command()
 async def next(ctx):
+
     try:
         if bot.voice_clients[0].is_playing():
             bot.voice_clients[0].stop()
             msg = song_list.popleft()
-            ydl_opts = {'format': 'bestaudio'}
-            FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                              'options': '-vn'}
+            if msg[:4] == "https":
+                ydl_opts = {'format': 'bestaudio'}
+                FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                                  'options': '-vn'}
+                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(msg, download=False)
+                    URL = info['formats'][0]['url']
+                voice = bot.voice_clients[0]
+                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
 
-            options = webdriver.ChromeOptions()
-            options.add_argument('headless')
-            options.add_argument('window-size=1920x1080')
-            options.add_argument("disable-gpu")
-            options.add_argument(
-                "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
-            options.add_argument("lang=ko_KR")  # 한국어!
+                await ctx.send("다음 노래를 재생합니다.")
 
-            options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-            driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
-            driver.get("https://www.youtube.com/results?search_query=" + msg)
-            source = driver.page_source
-            bs = bs4.BeautifulSoup(source, 'lxml')
-            entire = bs.find_all('a', {'id': 'video-title'})
-            entireNum = entire[0]
-            entireText = entireNum.text.strip()
-            musicurl = entireNum.get('href')
-            url = 'https://www.youtube.com' + musicurl
+            else:
+                ydl_opts = {'format': 'bestaudio'}
+                FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                                  'options': '-vn'}
 
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                URL = info['formats'][0]['url']
-            voice = bot.voice_clients[0]
-            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-            await ctx.send("다음 노래를 재생합니다.")
-            embed = discord.Embed(title=entireText + "를 재생합니다.",  # 변경
-                                  color=0xFF0000)  # 변경
-            await ctx.send(embed=embed)  # 변경
-            await ctx.send(url)  # 변경
+                options = webdriver.ChromeOptions()
+                options.add_argument('headless')
+                options.add_argument('window-size=1920x1080')
+                options.add_argument("disable-gpu")
+                options.add_argument(
+                    "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
+                options.add_argument("lang=ko_KR")  # 한국어!
+
+                options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+                driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
+                driver.get("https://www.youtube.com/results?search_query=" + msg)
+                source = driver.page_source
+                bs = bs4.BeautifulSoup(source, 'lxml')
+                entire = bs.find_all('a', {'id': 'video-title'})
+                entireNum = entire[0]
+                entireText = entireNum.text.strip()
+                musicurl = entireNum.get('href')
+                url = 'https://www.youtube.com' + musicurl
+
+                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    URL = info['formats'][0]['url']
+                voice = bot.voice_clients[0]
+                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                await ctx.send("다음 노래를 재생합니다.")
+                embed = discord.Embed(title=entireText + "를 재생합니다.",  # 변경
+                                      color=0xFF0000)  # 변경
+                await ctx.send(embed=embed)  # 변경
+                await ctx.send(url)  # 변경
         else:
             msg = song_list.popleft()
-            ydl_opts = {'format': 'bestaudio'}
-            FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                              'options': '-vn'}
+            if msg[:4] == "https":
+                ydl_opts = {'format': 'bestaudio'}
+                FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                                  'options': '-vn'}
+                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(msg, download=False)
+                    URL = info['formats'][0]['url']
+                voice = bot.voice_clients[0]
+                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
 
-            options = webdriver.ChromeOptions()
-            options.add_argument('headless')
-            options.add_argument('window-size=1920x1080')
-            options.add_argument("disable-gpu")
-            options.add_argument(
-                "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
-            options.add_argument("lang=ko_KR")  # 한국어!
+                await ctx.send("다음 노래를 재생합니다.")
+            else:
+                ydl_opts = {'format': 'bestaudio'}
+                FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                                  'options': '-vn'}
 
-            options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-            driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
-            driver.get("https://www.youtube.com/results?search_query=" + msg)
-            source = driver.page_source
-            bs = bs4.BeautifulSoup(source, 'lxml')
-            entire = bs.find_all('a', {'id': 'video-title'})
-            entireNum = entire[0]
-            entireText = entireNum.text.strip()
-            musicurl = entireNum.get('href')
-            url = 'https://www.youtube.com' + musicurl
+                options = webdriver.ChromeOptions()
+                options.add_argument('headless')
+                options.add_argument('window-size=1920x1080')
+                options.add_argument("disable-gpu")
+                options.add_argument(
+                       "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
+                options.add_argument("lang=ko_KR")  # 한국어!
 
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                URL = info['formats'][0]['url']
-            voice = bot.voice_clients[0]
-            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-            #,after=lambda e: asyncio.run_coroutine_threadsafe(autoNext, bot.loop)
+                options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+                driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options) #변경
+                driver.get("https://www.youtube.com/results?search_query=" + msg)
+                source = driver.page_source
+                bs = bs4.BeautifulSoup(source, 'lxml')
+                entire = bs.find_all('a', {'id': 'video-title'})
+                entireNum = entire[0]
+                entireText = entireNum.text.strip()
+                musicurl = entireNum.get('href')
+                url = 'https://www.youtube.com' + musicurl
 
-            await ctx.send("다음 노래를 재생합니다.")
-            embed = discord.Embed(title=entireText + "를 재생합니다.",  # 변경
-                                  color=0xFF0000)  # 변경
-            await ctx.send(embed=embed)  # 변경
+                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    URL = info['formats'][0]['url']
+                voice = bot.voice_clients[0]
+                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                #,after=lambda e: asyncio.run_coroutine_threadsafe(autoNext, bot.loop)
+
+                await ctx.send("다음 노래를 재생합니다.")
+                embed = discord.Embed(title=entireText + "를 재생합니다.",  # 변경
+                                        color=0xFF0000)  # 변경
+                await ctx.send(embed=embed)  # 변경
     except:
         await ctx.send("뒤에 재생 할 음악이 존재하지 않습니다.")
 
