@@ -65,7 +65,8 @@ async def copy(ctx,*,text):
 @bot.command()
 async def play(ctx, msg):
     global song_list
-    if msg[:5]=="https":
+    print(msg)
+    if msg[:2]=="ht":
         try:
             channel = ctx.author.voice.channel
             if not bot.voice_clients:
@@ -164,12 +165,12 @@ async def clear(ctx):
 
 @bot.command()
 async def next(ctx):
-
+  
     try:
         if bot.voice_clients[0].is_playing():
             bot.voice_clients[0].stop()
             msg = song_list.popleft()
-            if msg[:5] == "https":
+            if msg[:2] == "ht":
                 ydl_opts = {'format': 'bestaudio'}
                 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                                   'options': '-vn'}
@@ -217,7 +218,7 @@ async def next(ctx):
                 await ctx.send(url)  # 변경
         else:
             msg = song_list.popleft()
-            if msg[:5] == "https":
+            if msg[:2] == "ht":
                 ydl_opts = {'format': 'bestaudio'}
                 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                                   'options': '-vn'}
